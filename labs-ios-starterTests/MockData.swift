@@ -28,3 +28,47 @@ let propertyJSON: Data = """
    ]
  }
 """.data(using: .utf8)!
+
+let pickupJSON: Data = """
+"pickup": {
+  "id": "11",
+  "confirmationCode": "This is a placeholder confirmation.",
+  "collectionType": "LOCAL",
+  "status": "SUBMITTED",
+  "readyDate": "2020-20-20",
+  "pickupDate": "2020-21-21",
+  "property": {
+    "id": "11",
+    "billingAddress": "420 Meta Dr.",
+    "name": "Trannsylvania"
+  },
+  "notes": "Lord do I hope this works."
+}
+""".data(using: .utf8)!
+
+let impactStatsJSON: Data = """
+"impactStats": {
+  "soapRecycled": 1245,
+  "linensRecycled": null,
+  "bottlesRecycled": null,
+  "paperRecycled": null,
+  "peopleServed": 200,
+  "womenEmployed": 45
+}
+""".data(using: .utf8)!
+
+let userJSON: Data = """
+"user": {
+"id": "11",
+"firstName": "Test",
+"middleName": null,
+"lastName": "User",
+"title": "Place",
+"company": "Procastinadores Inc.",
+"email": "placeholder@email.com",
+"phone": "098-765-4321",
+"skype": "WhoUsesThis",
+"address": "123 Avenue",
+"signupTime": "12:30 PM",
+}
+""".data(using: .utf8)!
