@@ -7,6 +7,7 @@
 //
 
 import XCTest
+@testable import labs_ios_starter
 
 class labs_ios_starterTests: XCTestCase {
 
@@ -28,6 +29,12 @@ class labs_ios_starterTests: XCTestCase {
         measure {
             // Put the code you want to measure the time of here.
         }
+    }
+
+    func testPropertyDictInit() throws {
+        let dict = try JSONSerialization.jsonObject(with: propertyJSON, options: []) as! [String: Any]
+        let property = Property(dictionary: dict)
+        XCTAssertNotNil(property)
     }
 
 }
