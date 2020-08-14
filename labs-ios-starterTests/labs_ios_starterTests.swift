@@ -39,10 +39,20 @@ class labs_ios_starterTests: XCTestCase {
 
     func testPickupDictInit() throws {
         let dict = try JSONSerialization.jsonObject(with: pickupJSON, options: []) as! [String: Any]
-        print("Is something here?")
-        print(dict["id"] as! String)
         let pickup = Pickup(dictionary: dict)
         XCTAssertNotNil(pickup)
+    }
+
+    func testUserDictInit() throws {
+        let dict = try JSONSerialization.jsonObject(with: userJSON, options: []) as! [String: Any]
+        let user = User(dictionary: dict)
+        XCTAssertNotNil(user)
+    }
+
+    func testImpactStatsDictInit() throws {
+        let dict = try JSONSerialization.jsonObject(with: impactStatsJSON, options: []) as! [String: Any]
+        let stats = ImpactStats(dictionary: dict)
+        XCTAssertNotNil(stats)
     }
 
 }
