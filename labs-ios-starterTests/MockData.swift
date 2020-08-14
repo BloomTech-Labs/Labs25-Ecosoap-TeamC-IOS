@@ -30,7 +30,7 @@ let propertyJSON: Data = """
 """.data(using: .utf8)!
 
 let pickupJSON: Data = """
-"pickup": {
+{
   "id": "11",
   "confirmationCode": "This is a placeholder confirmation.",
   "collectionType": "LOCAL",
@@ -47,7 +47,7 @@ let pickupJSON: Data = """
 """.data(using: .utf8)!
 
 let impactStatsJSON: Data = """
-"impactStats": {
+{
   "soapRecycled": 1245,
   "linensRecycled": null,
   "bottlesRecycled": null,
@@ -58,7 +58,7 @@ let impactStatsJSON: Data = """
 """.data(using: .utf8)!
 
 let userJSON: Data = """
-"user": {
+{
 "id": "11",
 "firstName": "Test",
 "middleName": null,

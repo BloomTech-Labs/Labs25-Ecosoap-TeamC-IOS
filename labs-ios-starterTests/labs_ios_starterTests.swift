@@ -37,4 +37,12 @@ class labs_ios_starterTests: XCTestCase {
         XCTAssertNotNil(property)
     }
 
+    func testPickupDictInit() throws {
+        let dict = try JSONSerialization.jsonObject(with: pickupJSON, options: []) as! [String: Any]
+        print("Is something here?")
+        print(dict["id"] as! String)
+        let pickup = Pickup(dictionary: dict)
+        XCTAssertNotNil(pickup)
+    }
+
 }
