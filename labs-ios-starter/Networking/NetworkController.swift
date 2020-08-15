@@ -10,7 +10,18 @@ import Foundation
 
 class BackendController {
     private let apiURL: URL = URL(string: "https://ecosoap-placeholder.herokuapp.com/graphql")!
-    
+
+    var loggedInUser: User
+
+    var users: [String: User] = [:]
+    var properties: [String: Property] = [:]
+    var pickups: [String: Pickup] = [:]
+
+    var parsers: [String: (Any?)->()] = [:]
+
+    init(user: User) {
+        self.loggedInUser = user
+    }
 
     func queryAPI(query: Queries.Key, id: String, completion: @escaping (Any?, Error?) -> Void) {
         var request = URLRequest(url: apiURL)
