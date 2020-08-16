@@ -22,6 +22,7 @@ class BackendController {
     var propertyParser: (Any?) -> Void = {_ in }
     var propertiesParser: (Any?) -> Void = {_ in }
     var userParser: (Any?) -> Void = {_ in }
+    var pickupParser: (Any?) -> Void = {_ in }
 
     init(user: User) {
         self.loggedInUser = user
@@ -61,6 +62,17 @@ class BackendController {
             self.users[user.id] = user
         }
 
+        self.pickupParser = {
+            guard let pickupContainer = $0 as? [String: Any] else {
+                NSLog("Couldn't PICKUP cast data as dictionary for initialization")
+                return
+            }
+
+            guard let pickup = Pickup(dictionary: pickupContainer) else {
+                return
+            }
+            self.pickups[pickup.id] = pickup
+        }
 
     }
 
