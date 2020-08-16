@@ -14,6 +14,7 @@ class Property {
     let rooms: Int
     var name: String
     var phone, billingAddress, shippingAddress, coordinates, shippingNote, notes: String?
+    var stats: [ImpactStats] = []
 
     init(id: String, rooms: Int, name: String, phone: String? = nil, billingAddress: String? = nil, shippingAddress: String? = nil, coordinates: String? = nil, shippingNote: String? = nil, notes: String? = nil) {
         self.id = id
