@@ -17,12 +17,12 @@ class BackendController {
     var properties: [String: Property] = [:]
     var pickups: [String: Pickup] = [:]
 
-    var parsers: [String: (Any?)->()] = [:]
+    private var parsers: [String: (Any?)->()] = [:]
 
-    var propertyParser: (Any?) -> Void = {_ in }
-    var propertiesParser: (Any?) -> Void = {_ in }
-    var userParser: (Any?) -> Void = {_ in }
-    var pickupParser: (Any?) -> Void = {_ in }
+    private var propertyParser: (Any?) -> Void = {_ in }
+    private var propertiesParser: (Any?) -> Void = {_ in }
+    private var userParser: (Any?) -> Void = {_ in }
+    private var pickupParser: (Any?) -> Void = {_ in }
 
     init(user: User) {
         self.loggedInUser = user
@@ -81,7 +81,67 @@ class BackendController {
 
     }
 
-    func queryAPI(query: Queries.Key, id: String, completion: @escaping (Any?, Error?) -> Void) {
+    func propertiesByUserId(id: String, completion: @escaping (Error?) -> Void) {
+        queryAPI(query: .propertiesByUserId, id: id) { (_, error) in
+            if let error = error {
+                completion(error)
+                return
+            }
+            completion(nil)
+        }
+    }
+
+    func propertyById(id: String, completion: @escaping (Error?) -> Void) {
+        queryAPI(query: .propertyById, id: id) { (_, error) in
+            if let error = error {
+                completion(error)
+                return
+            }
+            completion(nil)
+        }
+    }
+
+    func userById(id: String, completion: @escaping (Error?) -> Void) {
+        queryAPI(query: .userById, id: id) { (_, error) in
+            if let error = error {
+                completion(error)
+                return
+            }
+            completion(nil)
+        }
+    }
+
+    func impactStatsByPropertyId(id: String, completion: @escaping (Error?) -> Void) {
+        queryAPI(query: .impactStatsByPropertyId, id: id) { (data, error) in
+            if let error = error {
+                completion(error)
+                return
+            }
+
+            guard let property = self.properties[id] else {
+                NSLog("This property is not currently stored into memory. Can't store impact stats.")
+                completion(NSError(domain: "Error locating property.", code: 0, userInfo: nil))
+                return
+            }
+
+            guard let container = data as? [String: Any] else {
+                NSLog("Couldn't unwrap data as dictionary for initializing an ImpactStats object.")
+                completion(NSError(domain: "Error unwrapping data.", code: 0, userInfo: nil))
+                return
+            }
+
+            guard let stats = ImpactStats(dictionary: container) else {
+                completion(NSError(domain: "Error initializing ImpactStats", code: 0, userInfo: nil))
+                return
+            }
+
+            property.stats = stats
+            completion(nil)
+
+        }
+    }
+
+    private func queryAPI(query: Queries.Key, id: String, completion: @escaping (Any?, Error?) -> Void) {
         var request = URLRequest(url: apiURL)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -108,15 +168,15 @@ class BackendController {
 
                 guard let parser = self.parsers[payloadString] else {
                     print("The payload \(payloadString) doesn't possess a parser.")
-                    completion(nil, nil)
+                    completion(queryContainer?[payloadString], nil)
                     return
                 }
                 parser(queryContainer?[payloadString])
+                completion(nil, nil)
 
             } catch let error {
                 completion(nil, error)
             }
         }.resume()
-        
     }
 }
