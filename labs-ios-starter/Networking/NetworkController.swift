@@ -19,8 +19,21 @@ class BackendController {
 
     var parsers: [String: (Any?)->()] = [:]
 
+    var propertyParser: (Any?) -> Void = {_ in }
+
     init(user: User) {
         self.loggedInUser = user
+        self.propertyParser = {
+            guard let propertyContainer = $0 as? [String: Any] else {
+                NSLog("Couldn't cast passed in data into a dictionary for initialization")
+                return
+            }
+
+            guard let property = Property(dictionary: propertyContainer) else {
+                return
+            }
+            self.properties[property.id] = property
+        }
     }
 
     func queryAPI(query: Queries.Key, id: String, completion: @escaping (Any?, Error?) -> Void) {
