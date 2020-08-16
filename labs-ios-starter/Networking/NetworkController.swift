@@ -105,16 +105,13 @@ class BackendController {
                 let queryContainer = dataContainer?[query.rawValue] as? [String: Any]
 
                 let payloadString = Queries.shared.payloads[query.rawValue]!
-                self.parsers[payloadString]!(queryContainer?[payloadString])
 
-
-//                if query == .propertiesByUserId {
-//                    let payloadContainer = queryContainer?[Queries.shared.payloads[query.rawValue]!] as? [[String: Any]]
-//                    completion(payloadContainer, nil)
-//                } else {
-//                    let payloadContainer = queryContainer?[Queries.shared.payloads[query.rawValue]!] as? [String: Any]
-//                    completion(payloadContainer, nil)
-//                }
+                guard let parser = self.parsers[payloadString] else {
+                    print("The payload \(payloadString) doesn't possess a parser.")
+                    completion(nil, nil)
+                    return
+                }
+                parser(queryContainer?[payloadString])
 
             } catch let error {
                 completion(nil, error)
