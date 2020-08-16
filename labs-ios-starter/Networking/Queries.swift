@@ -33,10 +33,6 @@ class Queries {
         case impactStatsByPropertyId
     }
 
-    private let statsById:(String) -> String = {
-        return "{propertyById(input: {propertyId: \($0)}) {property {id,name,rooms,phone,billingAddress,shippingAddress,coordinates,shippingNote,notes,users {id,firstName,lastName}}}}"
-    }
-
     private let propertiesByUserId:(String) -> String = {
         return """
         {
