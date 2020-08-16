@@ -27,6 +27,11 @@ class BackendController {
     init(user: User) {
         self.loggedInUser = user
 
+        self.parsers = ["properties":propertyParser,
+                        "property":propertiesParser,
+                        "user":userParser,
+                        "pickup":pickupParser]
+
         self.propertyParser = {
             guard let propertyContainer = $0 as? [String: Any] else {
                 NSLog("Couldn't PROPERTY cast data as dictionary for initialization")
