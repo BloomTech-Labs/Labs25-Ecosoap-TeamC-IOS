@@ -27,11 +27,6 @@ class BackendController {
     init(user: User) {
         self.loggedInUser = user
 
-        self.parsers = ["properties":propertyParser,
-                        "property":propertiesParser,
-                        "user":userParser,
-                        "pickup":pickupParser]
-
         self.propertyParser = {
             guard let propertyContainer = $0 as? [String: Any] else {
                 NSLog("Couldn't PROPERTY cast data as dictionary for initialization")
@@ -79,6 +74,11 @@ class BackendController {
             self.pickups[pickup.id] = pickup
         }
 
+        self.parsers = ["properties":propertyParser,
+        "property":propertiesParser,
+        "user":userParser,
+        "pickup":pickupParser]
+
     }
 
     func queryAPI(query: Queries.Key, id: String, completion: @escaping (Any?, Error?) -> Void) {
@@ -104,14 +104,17 @@ class BackendController {
                 let dataContainer = dict?["data"]  as? [String: Any]
                 let queryContainer = dataContainer?[query.rawValue] as? [String: Any]
 
+                let payloadString = Queries.shared.payloads[query.rawValue]!
+                self.parsers[payloadString]!(queryContainer?[payloadString])
 
-                if query == .propertiesByUserId {
-                    let payloadContainer = queryContainer?[Queries.shared.payloads[query.rawValue]!] as? [[String: Any]]
-                    completion(payloadContainer, nil)
-                } else {
-                    let payloadContainer = queryContainer?[Queries.shared.payloads[query.rawValue]!] as? [String: Any]
-                    completion(payloadContainer, nil)
-                }
+
+//                if query == .propertiesByUserId {
+//                    let payloadContainer = queryContainer?[Queries.shared.payloads[query.rawValue]!] as? [[String: Any]]
+//                    completion(payloadContainer, nil)
+//                } else {
+//                    let payloadContainer = queryContainer?[Queries.shared.payloads[query.rawValue]!] as? [String: Any]
+//                    completion(payloadContainer, nil)
+//                }
 
             } catch let error {
                 completion(nil, error)
