@@ -32,7 +32,10 @@ class Property {
         guard let id = dictionary["id"] as? String,
         let rooms = dictionary["rooms"] as? Int,
         let name = dictionary["name"] as? String else {
-            print("Failed to find something")
+            NSLog("Error unwrapping optional Property properties:")
+            NSLog("\tID: \(String(describing: dictionary["id"])) ")
+            NSLog("\tRooms: \(String(describing: dictionary["rooms"])) ")
+            NSLog("\tName: \(String(describing:dictionary["name"])) ")
             return nil
         }
 
