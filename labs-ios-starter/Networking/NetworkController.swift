@@ -20,12 +20,14 @@ class BackendController {
     var parsers: [String: (Any?)->()] = [:]
 
     var propertyParser: (Any?) -> Void = {_ in }
+    var propertiesParser: (Any?) -> Void = {_ in }
 
     init(user: User) {
         self.loggedInUser = user
+
         self.propertyParser = {
             guard let propertyContainer = $0 as? [String: Any] else {
-                NSLog("Couldn't cast passed in data into a dictionary for initialization")
+                NSLog("Couldn't PROPERTY cast data as dictionary for initialization")
                 return
             }
 
@@ -33,6 +35,17 @@ class BackendController {
                 return
             }
             self.properties[property.id] = property
+        }
+
+        self.propertiesParser = {
+            guard let propertiesContainer = $0 as? [[String: Any]] else {
+                NSLog("Couldn't PROPERTIES cast data as dictionary for initialization")
+                return
+            }
+
+            for prop in propertiesContainer {
+                self.propertyParser(prop)
+            }
         }
     }
 
