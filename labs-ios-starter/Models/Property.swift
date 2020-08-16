@@ -14,7 +14,7 @@ class Property {
     let rooms: Int
     var name: String
     var phone, billingAddress, shippingAddress, coordinates, shippingNote, notes: String?
-    var stats: [ImpactStats] = []
+    var stats: ImpactStats?
 
     init(id: String, rooms: Int, name: String, phone: String? = nil, billingAddress: String? = nil, shippingAddress: String? = nil, coordinates: String? = nil, shippingNote: String? = nil, notes: String? = nil) {
         self.id = id
@@ -46,6 +46,14 @@ class Property {
         self.coordinates = dictionary["coordinates"] as? String
         self.shippingNote = dictionary["shippingNote"] as? String
         self.notes = dictionary["notes"] as? String
+
+        if let statsContainer = dictionary["impactStats"] as? [String: Any] {
+            print("Found stats")
+            if let stats = ImpactStats(dictionary: statsContainer) {
+                print("Stats initialized successfully")
+                self.stats = stats
+            }
+        }
     }
 
 }
