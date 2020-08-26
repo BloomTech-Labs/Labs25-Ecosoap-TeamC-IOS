@@ -29,7 +29,8 @@ class BackendController {
     var hospitalityContracts: [String: HospitalityContract] = [:]
 
     private var parsers: [ResponseModel: (Any?)->()] = [.property: BackendController.shared.propertyParser,
-                                                        .properties: BackendController.shared.propertiesParser]
+                                                        .properties: BackendController.shared.propertiesParser,
+                                                        .user: BackendController.shared.userParser]
 
     private func propertyParser(data: Any?) {
         guard let propertyContainer = data as? [String: Any] else {
@@ -40,7 +41,7 @@ class BackendController {
         guard let property = Property(dictionary: propertyContainer) else {
             return
         }
-        BackendController.shared.properties[property.id] = property
+        self.properties[property.id] = property
     }
 
     private func propertiesParser(data: Any?) {
@@ -50,11 +51,22 @@ class BackendController {
         }
 
         for prop in propertiesContainer {
-            BackendController.shared.propertyParser(data:prop)
+            self.propertyParser(data:prop)
         }
     }
 
-    private var userParser: (Any?) -> Void = {_ in }
+    private func userParser(data: Any?) {
+        guard let userContainer = data as? [String: Any] else {
+            NSLog("Couldn't USER cast data as dictionary for initialization")
+            return
+        }
+
+        guard let user = User(dictionary: userContainer) else {
+            return
+        }
+        self.users[user.id] = user
+    }
+
     private var pickupParser: (Any?) -> Void = {_ in }
     private var pickupsParser: (Any?) -> Void = {_ in }
     private var hubParser: (Any?) -> Void = {_ in }
@@ -74,18 +86,6 @@ class BackendController {
 //        "payment":paymentParser,
 //        "payments":paymentsParser]
 //        self.loggedInUser = user
-
-
-//        self.propertiesParser = {
-//            guard let propertiesContainer = $0 as? [[String: Any]] else {
-//                NSLog("Couldn't PROPERTIES cast data as dictionary for initialization")
-//                return
-//            }
-//
-//            for prop in propertiesContainer {
-//                self.propertyParser(prop)
-//            }
-//        }
 //
 //        self.userParser = {
 //            guard let userContainer = $0 as? [String: Any] else {
