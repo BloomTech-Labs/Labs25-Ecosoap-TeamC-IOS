@@ -14,49 +14,31 @@ class Queries: Request {
 
     var payloadString: String
 
+    private static let collection = [QueryName.userById: Queries.userById,
+                                              .propertyById: Queries.propertyById,
+                                              .propertiesByUserId: Queries.propertiesByUserId,
+                                              .impactStatsByPropertyId: Queries.impactStatsByPropertyId,
+                                              .hubByPropertyId: Queries.impactStatsByPropertyId,
+                                              .pickupsByPropertyId: Queries.pickupsByPropertyId,
+                                              .nextPaymentByPropertyId: Queries.nextPaymentByPropertyId,
+                                              .paymentsByPropertyId: Queries.paymentsByPropertyId,
+                                              .monsterFetch: Queries.monsterFetch]
 
-//    static let shared = Queries()
-
-    let collection:[String: (String)->String]
-    let payloads: [QueryName: ResponseModel] = [QueryName.userById: .user,
-                                                QueryName.propertyById: .property,
-                                                QueryName.propertiesByUserId: .properties,
-                                                QueryName.impactStatsByPropertyId: .impactStats,
-                                                QueryName.hubByPropertyId: .hub,
-                                                QueryName.pickupsByPropertyId: .pickups,
-                                                QueryName.nextPaymentByPropertyId: .payment,
-                                                QueryName.paymentsByPropertyId: .payments,
-                                                QueryName.monsterFetch: .user]
+    private static let payloads: [QueryName: ResponseModel] = [.userById: .user,
+                                                               .propertyById: .property,
+                                                               .propertiesByUserId: .properties,
+                                                               .impactStatsByPropertyId: .impactStats,
+                                                               .hubByPropertyId: .hub,
+                                                               .pickupsByPropertyId: .pickups,
+                                                               .nextPaymentByPropertyId: .payment,
+                                                               .paymentsByPropertyId: .payments,
+                                                               .monsterFetch: .user]
 
 
-    init(name: QueryName) {
-        
+    init(name: QueryName, id: String) {
+        self.body = Queries.collection[name]!(id)
+        self.payloadString = Queries.payloads[name]!.rawValue
     }
-//    private init() {
-//        self.body = ""
-//        self.payloadString = ""
-//        self.collection = [QueryName.userById.rawValue:userById,
-//                           QueryName.propertyById.rawValue:propertyById,
-//                           QueryName.propertiesByUserId.rawValue:propertiesByUserId,
-//                           QueryName.impactStatsByPropertyId.rawValue:impactStatsByPropertyId,
-//                           QueryName.hubByPropertyId.rawValue:hubByPropertyId,
-//                           QueryName.pickupsByPropertyId.rawValue:pickupsByPropertyId,
-//                           QueryName.nextPaymentByPropertyId.rawValue:nextPaymentByPropertyId,
-//                           QueryName.paymentsByPropertyId.rawValue:paymentsByPropertyId,
-//                           QueryName.monsterFetch.rawValue:monsterFetch]
-//    }
-
-//    enum QueryName: String {
-//        case userById
-//        case propertiesByUserId
-//        case propertyById
-//        case impactStatsByPropertyId
-//        case hubByPropertyId
-//        case pickupsByPropertyId
-//        case nextPaymentByPropertyId
-//        case paymentsByPropertyId
-//        case monsterFetch
-//    }
 
     private static func propertiesByUserId(propertyID: String) -> String {
         return """
