@@ -30,7 +30,8 @@ class BackendController {
 
     private var parsers: [ResponseModel: (Any?)->()] = [.property: BackendController.shared.propertyParser,
                                                         .properties: BackendController.shared.propertiesParser,
-                                                        .user: BackendController.shared.userParser]
+                                                        .user: BackendController.shared.userParser,
+                                                        .pickup:  BackendController.shared.pickupParser]
 
     private func propertyParser(data: Any?) {
         guard let propertyContainer = data as? [String: Any] else {
@@ -67,7 +68,22 @@ class BackendController {
         self.users[user.id] = user
     }
 
-    private var pickupParser: (Any?) -> Void = {_ in }
+    private func pickupParser(data: Any?) {
+        guard let pickupContainer = data as? [String: Any] else {
+            NSLog("Couldn't PICKUP cast data as dictionary for initialization")
+            return
+        }
+
+        guard let pickup = Pickup(dictionary: pickupContainer) else {
+            return
+        }
+
+        if let cartonContainer = pickupContainer["cartons"] as? [[String: Any]] {
+            self.cartonParser(cartonContainer)
+        }
+        self.pickups[pickup.id] = pickup
+    }
+    
     private var pickupsParser: (Any?) -> Void = {_ in }
     private var hubParser: (Any?) -> Void = {_ in }
     private var paymentParser: (Any?) -> Void = {_ in }
@@ -86,19 +102,7 @@ class BackendController {
 //        "payment":paymentParser,
 //        "payments":paymentsParser]
 //        self.loggedInUser = user
-//
-//        self.userParser = {
-//            guard let userContainer = $0 as? [String: Any] else {
-//                NSLog("Couldn't USER cast data as dictionary for initialization")
-//                return
-//            }
-//
-//            guard let user = User(dictionary: userContainer) else {
-//                return
-//            }
-//            self.users[user.id] = user
-//        }
-//
+
 //        self.pickupParser = {
 //            guard let pickupContainer = $0 as? [String: Any] else {
 //                NSLog("Couldn't PICKUP cast data as dictionary for initialization")
