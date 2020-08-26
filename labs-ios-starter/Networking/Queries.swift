@@ -8,50 +8,60 @@
 
 import Foundation
 
-class Queries {
+class Queries: Request {
 
-    static let shared = Queries()
+    var body: String
+
+    var payloadString: String
+
+
+//    static let shared = Queries()
 
     let collection:[String: (String)->String]
-    let payloads = [Key.userById.rawValue:"user",
-                    Key.propertyById.rawValue:"property",
-                    Key.propertiesByUserId.rawValue:"properties",
-                    Key.impactStatsByPropertyId.rawValue:"impactStats",
-                    Key.hubByPropertyId.rawValue:"hub",
-                    Key.pickupsByPropertyId.rawValue:"pickups",
-                    Key.nextPaymentByPropertyId.rawValue:"payment",
-                    Key.paymentsByPropertyId.rawValue:"payments",
-                    Key.monsterFetch.rawValue:"user"]
+    let payloads: [QueryName: ResponseModel] = [QueryName.userById: .user,
+                                                QueryName.propertyById: .property,
+                                                QueryName.propertiesByUserId: .properties,
+                                                QueryName.impactStatsByPropertyId: .impactStats,
+                                                QueryName.hubByPropertyId: .hub,
+                                                QueryName.pickupsByPropertyId: .pickups,
+                                                QueryName.nextPaymentByPropertyId: .payment,
+                                                QueryName.paymentsByPropertyId: .payments,
+                                                QueryName.monsterFetch: .user]
 
 
-    private init() {
-        self.collection = [Key.userById.rawValue:userById,
-                           Key.propertyById.rawValue:propertyById,
-                           Key.propertiesByUserId.rawValue:propertiesByUserId,
-                           Key.impactStatsByPropertyId.rawValue:impactStatsByPropertyId,
-                           Key.hubByPropertyId.rawValue:hubByPropertyId,
-                           Key.pickupsByPropertyId.rawValue:pickupsByPropertyId,
-                           Key.nextPaymentByPropertyId.rawValue:nextPaymentByPropertyId,
-                           Key.paymentsByPropertyId.rawValue:paymentsByPropertyId,
-                           Key.monsterFetch.rawValue:monsterFetch]
+    init(name: QueryName) {
+        
     }
+//    private init() {
+//        self.body = ""
+//        self.payloadString = ""
+//        self.collection = [QueryName.userById.rawValue:userById,
+//                           QueryName.propertyById.rawValue:propertyById,
+//                           QueryName.propertiesByUserId.rawValue:propertiesByUserId,
+//                           QueryName.impactStatsByPropertyId.rawValue:impactStatsByPropertyId,
+//                           QueryName.hubByPropertyId.rawValue:hubByPropertyId,
+//                           QueryName.pickupsByPropertyId.rawValue:pickupsByPropertyId,
+//                           QueryName.nextPaymentByPropertyId.rawValue:nextPaymentByPropertyId,
+//                           QueryName.paymentsByPropertyId.rawValue:paymentsByPropertyId,
+//                           QueryName.monsterFetch.rawValue:monsterFetch]
+//    }
 
-    enum Key: String {
-        case userById
-        case propertiesByUserId
-        case propertyById
-        case impactStatsByPropertyId
-        case hubByPropertyId
-        case pickupsByPropertyId
-        case nextPaymentByPropertyId
-        case paymentsByPropertyId
-        case monsterFetch
-    }
+//    enum QueryName: String {
+//        case userById
+//        case propertiesByUserId
+//        case propertyById
+//        case impactStatsByPropertyId
+//        case hubByPropertyId
+//        case pickupsByPropertyId
+//        case nextPaymentByPropertyId
+//        case paymentsByPropertyId
+//        case monsterFetch
+//    }
 
-    private let propertiesByUserId:(String) -> String = {
+    private static func propertiesByUserId(propertyID: String) -> String {
         return """
         {
-        propertiesByUserId(input: { userId: "\($0)" }) {
+        propertiesByUserId(input: { userId: "\(propertyID)" }) {
             properties {
                 id,
                 name,
@@ -79,10 +89,10 @@ class Queries {
         """
     }
 
-    private let userById:(String) -> String = {
+    private static func userById(userID: String) -> String {
         return """
         {
-        userById(input: { userId:  \"\($0)\" }) {
+        userById(input: { userId:  \"\(userID)\" }) {
         user {
         id
         firstName
@@ -104,11 +114,11 @@ class Queries {
         """
     }
 
-    private let propertyById:(String) -> String = {
+    private static func propertyById(propertyID: String) -> String {
         return """
         {
         propertyById(input: {
-        propertyId: "\($0)"
+        propertyId: "\(propertyID)"
         }) {
         property {
           id,
@@ -137,11 +147,11 @@ class Queries {
         """
     }
 
-    private let impactStatsByPropertyId:(String) -> String = {
+    private static func impactStatsByPropertyId(propertyID: String) -> String {
         return """
         query {
         impactStatsByPropertyId(input: {
-        propertyId: "\($0)"
+        propertyId: "\(propertyID)"
         }) {
         impactStats {
         soapRecycled
@@ -156,11 +166,11 @@ class Queries {
         """
     }
 
-    private let hubByPropertyId:(String) -> String = {
+    private static func hubByPropertyId(propertyID: String) -> String {
         """
         query {
           hubByPropertyId(input: {
-            propertyId: "\($0)"
+            propertyId: "\(propertyID)"
           }) {
             hub {
               id
@@ -199,11 +209,11 @@ class Queries {
         """
     }
 
-    private let pickupsByPropertyId:(String) -> String = {
+    private static func pickupsByPropertyId(propertyID: String) -> String {
         """
         query {
           pickupsByPropertyId(input: {
-            propertyId: "\($0)"
+            propertyId: "\(propertyID)"
           })  {
             pickups {
               id
@@ -228,11 +238,11 @@ class Queries {
         """
     }
 
-    private let nextPaymentByPropertyId:(String) -> String = {
+    private static func nextPaymentByPropertyId(propertyID: String) -> String {
         """
         query {
           nextPaymentByPropertyId(input: {
-            propertyId: "\($0)"
+            propertyId: "\(propertyID)"
           }) {
             payment {
               id
@@ -254,11 +264,11 @@ class Queries {
         """
     }
 
-    private let paymentsByPropertyId:(String) -> String = {
+    private static func paymentsByPropertyId(propertyID: String) -> String {
         """
         query {
           paymentsByPropertyId(input: {
-            propertyId: "\($0)"
+            propertyId: "\(propertyID)"
           }) {
           payments {
               id
@@ -280,11 +290,11 @@ class Queries {
         """
     }
 
-    private let monsterFetch:(String) -> String = {
+    private static func monsterFetch(userID: String) -> String {
         return """
         query {
           userById(input: {
-            userId: "\($0)"
+            userId: "\(userID)"
           }) {
             user {
               id
