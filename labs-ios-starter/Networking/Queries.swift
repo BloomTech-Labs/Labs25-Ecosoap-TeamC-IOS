@@ -4,7 +4,6 @@
 //
 //  Created by Karen Rodriguez on 8/12/20.
 //  Copyright © 2020 Spencer Curtis. All rights reserved.
-//
 
 import Foundation
 
@@ -34,9 +33,12 @@ class Queries: Request {
                                                                .paymentsByPropertyId: .payments,
                                                                .monsterFetch: .user]
 
-
-    init(name: QueryName, id: String) {
-        self.body = Queries.collection[name]!(id)
+    init?(name: QueryName, id: String) {
+        guard let body = Queries.collection[name] else {
+            NSLog("Couldn't find this query in the collection. Check your implementation.")
+            return nil
+        }
+        self.body = body(id)
         self.payloadString = Queries.payloads[name]!.rawValue
     }
 
