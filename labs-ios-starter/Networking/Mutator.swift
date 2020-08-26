@@ -12,7 +12,7 @@ class Mutator: Request {
 
     var body: String
 
-    var payloadString: String
+    var payload: ResponseModel
 
     var name: String
 
@@ -35,7 +35,7 @@ class Mutator: Request {
             return nil
         }
         self.body = body
-        self.payloadString = payload.rawValue
+        self.payload = payload
         self.name = name.rawValue
     }
 
