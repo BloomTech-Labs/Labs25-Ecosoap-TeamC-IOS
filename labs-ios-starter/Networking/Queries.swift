@@ -13,6 +13,8 @@ class Queries: Request {
 
     var payloadString: String
 
+    var name: String
+
     private static let collection = [QueryName.userById: Queries.userById,
                                               .propertyById: Queries.propertyById,
                                               .propertiesByUserId: Queries.propertiesByUserId,
@@ -40,6 +42,7 @@ class Queries: Request {
         }
         self.body = body(id)
         self.payloadString = Queries.payloads[name]!.rawValue
+        self.name = name.rawValue
     }
 
     private static func propertiesByUserId(propertyID: String) -> String {

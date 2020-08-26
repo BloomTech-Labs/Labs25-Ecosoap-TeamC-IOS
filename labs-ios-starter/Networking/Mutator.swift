@@ -14,6 +14,8 @@ class Mutator: Request {
 
     var payloadString: String
 
+    var name: String
+
     private static let collection = [MutationName.schedulePickup: Mutator.schedulePickup]
 
     private static let payloads: [MutationName: ResponseModel] = [.schedulePickup: .pickup]
@@ -34,6 +36,7 @@ class Mutator: Request {
         }
         self.body = body
         self.payloadString = payload.rawValue
+        self.name = name.rawValue
     }
 
     private static func schedulePickup(input: Input) -> String? {
