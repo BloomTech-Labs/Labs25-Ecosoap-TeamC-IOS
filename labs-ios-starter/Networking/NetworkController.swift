@@ -18,6 +18,8 @@ class BackendController {
 
 //    var loggedInUser: User
 
+    static let shared = BackendController()
+
     var users: [String: User] = [:]
     var properties: [String: Property] = [:]
     var pickups: [String: Pickup] = [:]
@@ -26,7 +28,8 @@ class BackendController {
     var pickupCartons: [String: PickupCarton] = [:]
     var hospitalityContracts: [String: HospitalityContract] = [:]
 
-    private var parsers: [ResponseModel: (Any?)->()] = [:]
+    private var parsers: [ResponseModel: (Any?)->()] = [.property: BackendController.shared.propertyParser,
+                                                        .properties: BackendController.shared.propertiesParser]
 
     private func propertyParser(data: Any?) {
         guard let propertyContainer = data as? [String: Any] else {
@@ -37,9 +40,20 @@ class BackendController {
         guard let property = Property(dictionary: propertyContainer) else {
             return
         }
-        self.properties[property.id] = property
+        BackendController.shared.properties[property.id] = property
     }
-    private var propertiesParser: (Any?) -> Void = {_ in }
+
+    private func propertiesParser(data: Any?) {
+        guard let propertiesContainer = data as? [[String: Any]] else {
+            NSLog("Couldn't PROPERTIES cast data as dictionary for initialization")
+            return
+        }
+
+        for prop in propertiesContainer {
+            BackendController.shared.propertyParser(data:prop)
+        }
+    }
+
     private var userParser: (Any?) -> Void = {_ in }
     private var pickupParser: (Any?) -> Void = {_ in }
     private var pickupsParser: (Any?) -> Void = {_ in }
@@ -51,7 +65,7 @@ class BackendController {
 
     init() {
 
-//        self.parsers = ["properties":propertyParser,
+//        self.parsers = [.properties: propertyParser]
 //        "property":propertiesParser,
 //        "user":userParser,
 //        "pickup":pickupParser,
@@ -61,121 +75,110 @@ class BackendController {
 //        "payments":paymentsParser]
 //        self.loggedInUser = user
 
-        self.propertyParser = {
-            guard let propertyContainer = $0 as? [String: Any] else {
-                NSLog("Couldn't PROPERTY cast data as dictionary for initialization")
-                return
-            }
 
-            guard let property = Property(dictionary: propertyContainer) else {
-                return
-            }
-            self.properties[property.id] = property
-        }
-
-        self.propertiesParser = {
-            guard let propertiesContainer = $0 as? [[String: Any]] else {
-                NSLog("Couldn't PROPERTIES cast data as dictionary for initialization")
-                return
-            }
-
-            for prop in propertiesContainer {
-                self.propertyParser(prop)
-            }
-        }
-
-        self.userParser = {
-            guard let userContainer = $0 as? [String: Any] else {
-                NSLog("Couldn't USER cast data as dictionary for initialization")
-                return
-            }
-
-            guard let user = User(dictionary: userContainer) else {
-                return
-            }
-            self.users[user.id] = user
-        }
-
-        self.pickupParser = {
-            guard let pickupContainer = $0 as? [String: Any] else {
-                NSLog("Couldn't PICKUP cast data as dictionary for initialization")
-                return
-            }
-
-            guard let pickup = Pickup(dictionary: pickupContainer) else {
-                return
-            }
-
-            if let cartonContainer = pickupContainer["cartons"] as? [[String: Any]] {
-                self.cartonParser(cartonContainer)
-            }
-            self.pickups[pickup.id] = pickup
-        }
-
-        self.pickupsParser = {
-            guard let pickupsContainer = $0 as? [[String: Any]] else {
-                NSLog("Couldn't cast data as dictionary for PICKUPS container.")
-                return
-            }
-
-            for pickup in pickupsContainer {
-                self.pickupParser(pickup)
-            }
-        }
-
-        self.hubParser = {
-            guard let hubContainer = $0 as? [String: Any] else {
-                NSLog("Couldn't cast data as dictionary for HUB initialization.")
-                return
-            }
-
-            guard let hub = Hub(dictionary: hubContainer) else {
-                NSLog("Failed to initialize HUB in parser.")
-                NSLog("Dictionary:")
-                NSLog("\t\(hubContainer)")
-                return
-            }
-            self.hubs[hub.id] = hub
-        }
-
-        self.paymentParser = {
-            guard let paymentContainer = $0 as? [String: Any] else {
-                NSLog("Couldn't cast data as dictionary for PAYMENT initialization.")
-                return
-            }
-
-            guard let payment = Payment(dictionary: paymentContainer) else {
-                NSLog("Failed to initialize HUB in parser.")
-                NSLog("Dictionary:")
-                NSLog("\t\(paymentContainer)")
-                return
-            }
-            self.payments[payment.id] = payment
-        }
-
-        self.paymentsParser = {
-            guard let paymentsContainer = $0 as? [[String: Any]] else {
-                NSLog("Couldn't cast data as dictionary for PAYMENTS container.")
-                return
-            }
-
-            for payment in paymentsContainer {
-                self.paymentParser(payment)
-            }
-        }
-
-        self.cartonParser = {
-            guard let cartonsContainer = $0 as? [[String: Any]] else {
-                return
-            }
-
-            for cartonDict in cartonsContainer {
-                if let carton = PickupCarton(dictionary: cartonDict) {
-                    self.pickupCartons[carton.id] = carton
-                }
-            }
-
-        }
+//        self.propertiesParser = {
+//            guard let propertiesContainer = $0 as? [[String: Any]] else {
+//                NSLog("Couldn't PROPERTIES cast data as dictionary for initialization")
+//                return
+//            }
+//
+//            for prop in propertiesContainer {
+//                self.propertyParser(prop)
+//            }
+//        }
+//
+//        self.userParser = {
+//            guard let userContainer = $0 as? [String: Any] else {
+//                NSLog("Couldn't USER cast data as dictionary for initialization")
+//                return
+//            }
+//
+//            guard let user = User(dictionary: userContainer) else {
+//                return
+//            }
+//            self.users[user.id] = user
+//        }
+//
+//        self.pickupParser = {
+//            guard let pickupContainer = $0 as? [String: Any] else {
+//                NSLog("Couldn't PICKUP cast data as dictionary for initialization")
+//                return
+//            }
+//
+//            guard let pickup = Pickup(dictionary: pickupContainer) else {
+//                return
+//            }
+//
+//            if let cartonContainer = pickupContainer["cartons"] as? [[String: Any]] {
+//                self.cartonParser(cartonContainer)
+//            }
+//            self.pickups[pickup.id] = pickup
+//        }
+//
+//        self.pickupsParser = {
+//            guard let pickupsContainer = $0 as? [[String: Any]] else {
+//                NSLog("Couldn't cast data as dictionary for PICKUPS container.")
+//                return
+//            }
+//
+//            for pickup in pickupsContainer {
+//                self.pickupParser(pickup)
+//            }
+//        }
+//
+//        self.hubParser = {
+//            guard let hubContainer = $0 as? [String: Any] else {
+//                NSLog("Couldn't cast data as dictionary for HUB initialization.")
+//                return
+//            }
+//
+//            guard let hub = Hub(dictionary: hubContainer) else {
+//                NSLog("Failed to initialize HUB in parser.")
+//                NSLog("Dictionary:")
+//                NSLog("\t\(hubContainer)")
+//                return
+//            }
+//            self.hubs[hub.id] = hub
+//        }
+//
+//        self.paymentParser = {
+//            guard let paymentContainer = $0 as? [String: Any] else {
+//                NSLog("Couldn't cast data as dictionary for PAYMENT initialization.")
+//                return
+//            }
+//
+//            guard let payment = Payment(dictionary: paymentContainer) else {
+//                NSLog("Failed to initialize HUB in parser.")
+//                NSLog("Dictionary:")
+//                NSLog("\t\(paymentContainer)")
+//                return
+//            }
+//            self.payments[payment.id] = payment
+//        }
+//
+//        self.paymentsParser = {
+//            guard let paymentsContainer = $0 as? [[String: Any]] else {
+//                NSLog("Couldn't cast data as dictionary for PAYMENTS container.")
+//                return
+//            }
+//
+//            for payment in paymentsContainer {
+//                self.paymentParser(payment)
+//            }
+//        }
+//
+//        self.cartonParser = {
+//            guard let cartonsContainer = $0 as? [[String: Any]] else {
+//                return
+//            }
+//
+//            for cartonDict in cartonsContainer {
+//                if let carton = PickupCarton(dictionary: cartonDict) {
+//                    self.pickupCartons[carton.id] = carton
+//                }
+//            }
+//
+//        }
 
 
 
@@ -453,6 +456,7 @@ class BackendController {
                 guard let dataContainer = dict?["data"]  as? [String: Any] else {
                     NSLog("No data in request response.")
                     completion(nil, NSError(domain: "No data in response.", code: 0, userInfo: nil))
+                    return
                 }
 
                 var queryContainer:[String: Any]?
