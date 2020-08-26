@@ -18,7 +18,10 @@ class BackendController {
 
 //    var loggedInUser: User
 
-    static let shared = BackendController()
+    static let shared: BackendController = BackendController()
+
+    private init() {
+    }
 
     var users: [String: User] = [:]
     var properties: [String: Property] = [:]
@@ -28,16 +31,17 @@ class BackendController {
     var pickupCartons: [String: PickupCarton] = [:]
     var hospitalityContracts: [String: HospitalityContract] = [:]
 
-    private var parsers: [ResponseModel: (Any?)->()] = [.property: BackendController.shared.propertyParser,
-                                                        .properties: BackendController.shared.propertiesParser,
-                                                        .user: BackendController.shared.userParser,
-                                                        .pickup:  BackendController.shared.pickupParser,
-                                                        .pickups: BackendController.shared.pickupsParser,
-                                                        .hub: BackendController.shared.hubParser,
-                                                        .payment: BackendController.shared.paymentParser,
-                                                        .payments: BackendController.shared.paymentsParser]
+    private var parsers: [ResponseModel: (Any?)->()] = [.property: BackendController.propertyParser,
+                                                        .properties: BackendController.propertiesParser,
+                                                        .user: BackendController.userParser,
+                                                        .pickup:  BackendController.pickupParser,
+                                                        .pickups: BackendController.pickupsParser,
+                                                        .hub: BackendController.hubParser,
+                                                        .payment: BackendController.paymentParser,
+                                                        .payments: BackendController.paymentsParser
+                                                        ]
 
-    private func propertyParser(data: Any?) {
+    private static func propertyParser(data: Any?) {
         guard let propertyContainer = data as? [String: Any] else {
             NSLog("Couldn't PROPERTY cast data as dictionary for initialization")
             return
@@ -46,21 +50,21 @@ class BackendController {
         guard let property = Property(dictionary: propertyContainer) else {
             return
         }
-        self.properties[property.id] = property
+        shared.properties[property.id] = property
     }
 
-    private func propertiesParser(data: Any?) {
+    private static func propertiesParser(data: Any?) {
         guard let propertiesContainer = data as? [[String: Any]] else {
             NSLog("Couldn't PROPERTIES cast data as dictionary for initialization")
             return
         }
 
         for prop in propertiesContainer {
-            self.propertyParser(data:prop)
+            propertyParser(data:prop)
         }
     }
 
-    private func userParser(data: Any?) {
+    private static func userParser(data: Any?) {
         guard let userContainer = data as? [String: Any] else {
             NSLog("Couldn't USER cast data as dictionary for initialization")
             return
@@ -69,10 +73,10 @@ class BackendController {
         guard let user = User(dictionary: userContainer) else {
             return
         }
-        self.users[user.id] = user
+        shared.users[user.id] = user
     }
 
-    private func pickupParser(data: Any?) {
+    private static func pickupParser(data: Any?) {
         guard let pickupContainer = data as? [String: Any] else {
             NSLog("Couldn't PICKUP cast data as dictionary for initialization")
             return
@@ -83,25 +87,26 @@ class BackendController {
         }
 
         if let cartonContainer = pickupContainer["cartons"] as? [[String: Any]] {
-            self.cartonParser(data: cartonContainer)
+            cartonParser(data: cartonContainer)
         }
-        self.pickups[pickup.id] = pickup
+        shared.pickups[pickup.id] = pickup
     }
 
-    private func pickupsParser(data: Any?) {
+    private static func pickupsParser(data: Any?) {
         guard let pickupsContainer = data as? [[String: Any]] else {
             NSLog("Couldn't cast data as dictionary for PICKUPS container.")
             return
         }
 
         for pickup in pickupsContainer {
-            self.pickupParser(data: pickup)
+            pickupParser(data: pickup)
         }
     }
 
-    private func hubParser(data: Any?) {
+    private static func hubParser(data: Any?) {
         guard let hubContainer = data as? [String: Any] else {
             NSLog("Couldn't cast data as dictionary for HUB initialization.")
+            print(data)
             return
         }
 
@@ -111,10 +116,10 @@ class BackendController {
             NSLog("\t\(hubContainer)")
             return
         }
-        self.hubs[hub.id] = hub
+        shared.hubs[hub.id] = hub
     }
 
-    private func paymentParser(data: Any?) {
+    private static func paymentParser(data: Any?) {
         guard let paymentContainer = data as? [String: Any] else {
             NSLog("Couldn't cast data as dictionary for PAYMENT initialization.")
             return
@@ -126,35 +131,31 @@ class BackendController {
             NSLog("\t\(paymentContainer)")
             return
         }
-        self.payments[payment.id] = payment
+        shared.payments[payment.id] = payment
     }
 
-    private func paymentsParser(data: Any?) {
+    private static func paymentsParser(data: Any?) {
         guard let paymentsContainer = data as? [[String: Any]] else {
             NSLog("Couldn't cast data as dictionary for PAYMENTS container.")
             return
         }
 
         for payment in paymentsContainer {
-            self.paymentParser(data: payment)
+            paymentParser(data: payment)
         }
     }
 
-    private func cartonParser(data: Any?) {
+    private static func cartonParser(data: Any?) {
         guard let cartonsContainer = data as? [[String: Any]] else {
             return
         }
 
         for cartonDict in cartonsContainer {
             if let carton = PickupCarton(dictionary: cartonDict) {
-                self.pickupCartons[carton.id] = carton
+                shared.pickupCartons[carton.id] = carton
             }
         }
 
-    }
-
-
-    private init() {
     }
 
     func propertiesByUserId(id: String, completion: @escaping (Error?) -> Void) {
@@ -437,7 +438,7 @@ class BackendController {
                 let payloadString = request.payload.rawValue
 
                 if request.name == "monsterFetch" {
-                    guard let queryContainer = dataContainer[request.name] as? [String: Any] else {
+                    guard let queryContainer = dataContainer["userById"] as? [String: Any] else {
                         completion(nil, NSError(domain: "Query container is nil.", code: 0, userInfo: nil))
                         return
                     }
