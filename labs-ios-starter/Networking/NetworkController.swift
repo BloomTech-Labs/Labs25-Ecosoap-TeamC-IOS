@@ -190,7 +190,11 @@ class BackendController {
     }
 
     func userById(id: String, completion: @escaping (Error?) -> Void) {
-        queryAPI(query: .userById, id: id) { (_, error) in
+        guard let request = Queries(name: .userById, id: id) else {
+            completion(Errors.RequestInitFail)
+            return
+        }
+        requestAPI(with: request) { (_, error) in
             if let error = error {
                 completion(error)
                 return
