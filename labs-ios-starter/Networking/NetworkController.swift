@@ -240,7 +240,12 @@ class BackendController {
     }
 
     func impactStatsByPropertyId(id: String, completion: @escaping (Error?) -> Void) {
-        queryAPI(query: .impactStatsByPropertyId, id: id) { (data, error) in
+        guard let request = Queries(name: .impactStatsByPropertyId, id: id) else {
+            completion(Errors.RequestInitFail)
+            return
+        }
+
+        requestAPI(with: request) { (data, error) in
             if let error = error {
                 completion(error)
                 return
@@ -265,7 +270,6 @@ class BackendController {
 
             property.impact = stats
             completion(nil)
-
         }
     }
 
