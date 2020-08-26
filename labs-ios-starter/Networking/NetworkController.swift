@@ -234,7 +234,11 @@ class BackendController {
     }
 
     func paymentsByPropertyId(propertyId: String, completion: @escaping (Error?) -> Void) {
-        queryAPI(query: .paymentsByPropertyId, id: propertyId) { (_, error) in
+        guard let request = Queries(name: .paymentsByPropertyId, id: propertyId) else {
+            completion(Errors.RequestInitFail)
+            return
+        }
+        requestAPI(with: request) { (_, error) in
             if let error = error {
                 completion(error)
                 return
