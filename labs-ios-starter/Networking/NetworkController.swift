@@ -359,58 +359,6 @@ class BackendController {
         }
     }
 
-    private func queryAPI(query: Queries.Key, id: String, completion: @escaping (Any?, Error?) -> Void) {
-        var request = URLRequest(url: apiURL)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        let wtf = Queries.shared.collection[query.rawValue]!(id)
-
-        request.httpBody = try! JSONSerialization.data(withJSONObject: ["query": wtf], options: [])
-
-        print("Request body")
-        print(String(data: request.httpBody!, encoding: .utf8)!)
-        URLSession.shared.dataTask(with: request) { data, _, error in
-            if let _ = error {
-                completion(nil, error)
-                return
-            }
-
-            guard let data = data else {
-                completion(nil, nil)
-                return
-            }
-
-            do {
-                let dict = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                let dataContainer = dict?["data"]  as? [String: Any]
-                var queryContainer:[String: Any]?
-
-                let payloadString = Queries.shared.payloads[query.rawValue]!
-
-                if query == .monsterFetch {
-                    queryContainer = dataContainer?["userById"] as? [String: Any]
-                    completion(queryContainer?[payloadString], nil)
-                    return
-                } else {
-                    queryContainer = dataContainer?[query.rawValue] as? [String: Any]
-                }
-
-
-                guard let parser = self.parsers[payloadString] else {
-                    print("The payload \(payloadString) doesn't possess a parser.")
-                    completion(queryContainer?[payloadString], nil)
-                    return
-                }
-                parser(queryContainer?[payloadString])
-                completion(nil, nil)
-
-            } catch let error {
-                completion(nil, error)
-            }
-        }.resume()
-    }
-
     func schedulePickup(input: PickupInput) {
         mutateAPI(requestBody: Mutator.shared.schedulePickup(pickup: input), payload: .pickup, mutation: .schedulePickup) { (_, error) in
             if let error = error {
@@ -423,16 +371,16 @@ class BackendController {
         }
     }
 
-    private func mutateAPI(requestBody: String, payload: ResponseModel, mutation: Mutations, completion: @escaping (Any?, Error?) -> Void) {
-        var request = URLRequest(url: apiURL)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    private func requestAPI(with request: Request, completion: @escaping (Any?, Error?) -> Void) {
+        var urlRequest = URLRequest(url: apiURL)
+        urlRequest.httpMethod = "POST"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        request.httpBody = try! JSONSerialization.data(withJSONObject: ["query": requestBody], options: [])
+        urlRequest.httpBody = try! JSONSerialization.data(withJSONObject: ["query": request.body], options: [])
 
         print("Request body")
-        print(String(data: request.httpBody!, encoding: .utf8)!)
-        URLSession.shared.dataTask(with: request) { data, _, error in
+        print(String(data: urlRequest.httpBody!, encoding: .utf8)!)
+        URLSession.shared.dataTask(with: urlRequest) { data, _, error in
             if let _ = error {
                 completion(nil, error)
                 return
@@ -445,11 +393,26 @@ class BackendController {
 
             do {
                 let dict = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                let dataContainer = dict?["data"]  as? [String: Any]
+                guard let dataContainer = dict?["data"]  as? [String: Any] else {
+                    NSLog("No data in request response.")
+                    completion(nil, NSError(domain: "No data in response.", code: 0, userInfo: nil))
+                }
 
-                let queryContainer:[String: Any]? = dataContainer?[mutation.rawValue] as? [String: Any]
+                var queryContainer:[String: Any]?
 
-                let payloadString = payload.rawValue
+                let payloadString = request.payloadString
+
+                if request.name == "monsterFetch" {
+                    guard let queryContainer = dataContainer[request.name] as? [String: Any] else {
+                        completion(nil, NSError(domain: "Query container is nil.", code: 0, userInfo: nil))
+                        return
+                    }
+                    completion(queryContainer[payloadString], nil)
+                    return
+                } else {
+                    queryContainer = dataContainer[request.name] as? [String: Any]
+                }
+
 
                 guard let parser = self.parsers[payloadString] else {
                     print("The payload \(payloadString) doesn't possess a parser.")
