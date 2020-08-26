@@ -83,7 +83,7 @@ class BackendController {
         }
 
         if let cartonContainer = pickupContainer["cartons"] as? [[String: Any]] {
-            self.cartonParser(cartonContainer)
+            self.cartonParser(data: cartonContainer)
         }
         self.pickups[pickup.id] = pickup
     }
@@ -139,47 +139,22 @@ class BackendController {
             self.paymentParser(data: payment)
         }
     }
-    private var cartonParser: (Any?) -> Void = {_ in }
+
+    private func cartonParser(data: Any?) {
+        guard let cartonsContainer = data as? [[String: Any]] else {
+            return
+        }
+
+        for cartonDict in cartonsContainer {
+            if let carton = PickupCarton(dictionary: cartonDict) {
+                self.pickupCartons[carton.id] = carton
+            }
+        }
+
+    }
 
 
-    init() {
-
-//        self.parsers = [.properties: propertyParser]
-//        "property":propertiesParser,
-//        "user":userParser,
-//        "pickup":pickupParser,
-//        "pickups":pickupsParser,
-//        "hub":hubParser,
-//        "payment":paymentParser,
-//        "payments":paymentsParser]
-//        self.loggedInUser = user
-
-//        self.paymentsParser = {
-//            guard let paymentsContainer = $0 as? [[String: Any]] else {
-//                NSLog("Couldn't cast data as dictionary for PAYMENTS container.")
-//                return
-//            }
-//
-//            for payment in paymentsContainer {
-//                self.paymentParser(payment)
-//            }
-//        }
-//
-//        self.cartonParser = {
-//            guard let cartonsContainer = $0 as? [[String: Any]] else {
-//                return
-//            }
-//
-//            for cartonDict in cartonsContainer {
-//                if let carton = PickupCarton(dictionary: cartonDict) {
-//                    self.pickupCartons[carton.id] = carton
-//                }
-//            }
-//
-//        }
-
-
-
+    private init() {
     }
 
     func propertiesByUserId(id: String, completion: @escaping (Error?) -> Void) {
