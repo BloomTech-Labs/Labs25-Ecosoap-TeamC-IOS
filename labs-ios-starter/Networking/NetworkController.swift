@@ -34,7 +34,8 @@ class BackendController {
                                                         .pickup:  BackendController.shared.pickupParser,
                                                         .pickups: BackendController.shared.pickupsParser,
                                                         .hub: BackendController.shared.hubParser,
-                                                        .payment: BackendController.shared.paymentParser]
+                                                        .payment: BackendController.shared.paymentParser,
+                                                        .payments: BackendController.shared.paymentsParser]
 
     private func propertyParser(data: Any?) {
         guard let propertyContainer = data as? [String: Any] else {
@@ -127,7 +128,17 @@ class BackendController {
         }
         self.payments[payment.id] = payment
     }
-    private var paymentsParser: (Any?) -> Void = {_ in }
+
+    private func paymentsParser(data: Any?) {
+        guard let paymentsContainer = data as? [[String: Any]] else {
+            NSLog("Couldn't cast data as dictionary for PAYMENTS container.")
+            return
+        }
+
+        for payment in paymentsContainer {
+            self.paymentParser(data: payment)
+        }
+    }
     private var cartonParser: (Any?) -> Void = {_ in }
 
 
@@ -143,21 +154,6 @@ class BackendController {
 //        "payments":paymentsParser]
 //        self.loggedInUser = user
 
-//        self.paymentParser = {
-//            guard let paymentContainer = $0 as? [String: Any] else {
-//                NSLog("Couldn't cast data as dictionary for PAYMENT initialization.")
-//                return
-//            }
-//
-//            guard let payment = Payment(dictionary: paymentContainer) else {
-//                NSLog("Failed to initialize HUB in parser.")
-//                NSLog("Dictionary:")
-//                NSLog("\t\(paymentContainer)")
-//                return
-//            }
-//            self.payments[payment.id] = payment
-//        }
-//
 //        self.paymentsParser = {
 //            guard let paymentsContainer = $0 as? [[String: Any]] else {
 //                NSLog("Couldn't cast data as dictionary for PAYMENTS container.")
