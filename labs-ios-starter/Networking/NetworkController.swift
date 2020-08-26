@@ -359,15 +359,17 @@ class BackendController {
         }
     }
 
-    func schedulePickup(input: PickupInput) {
-        mutateAPI(requestBody: Mutator.shared.schedulePickup(pickup: input), payload: .pickup, mutation: .schedulePickup) { (_, error) in
+    func schedulePickup(input: PickupInput, completion: @escaping (Error?) -> Void) {
+        guard let request = Mutator(name: .schedulePickup, input: input) else {
+            return
+        }
+        requestAPI(with: request) { (_, error) in
             if let error = error {
-                NSLog("Error Scheduling Pickup")
-                NSLog("\(error)")
+                completion(error)
                 return
             }
 
-            NSLog("Successfully scheduled pickup.")
+            completion(nil)
         }
     }
 
