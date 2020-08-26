@@ -32,7 +32,8 @@ class BackendController {
                                                         .properties: BackendController.shared.propertiesParser,
                                                         .user: BackendController.shared.userParser,
                                                         .pickup:  BackendController.shared.pickupParser,
-                                                        .pickups: BackendController.shared.pickupsParser]
+                                                        .pickups: BackendController.shared.pickupsParser,
+                                                        .hub: BackendController.shared.hubParser]
 
     private func propertyParser(data: Any?) {
         guard let propertyContainer = data as? [String: Any] else {
@@ -96,7 +97,20 @@ class BackendController {
         }
     }
 
-    private var hubParser: (Any?) -> Void = {_ in }
+    private func hubParser(data: Any?) {
+        guard let hubContainer = data as? [String: Any] else {
+            NSLog("Couldn't cast data as dictionary for HUB initialization.")
+            return
+        }
+
+        guard let hub = Hub(dictionary: hubContainer) else {
+            NSLog("Failed to initialize HUB in parser.")
+            NSLog("Dictionary:")
+            NSLog("\t\(hubContainer)")
+            return
+        }
+        self.hubs[hub.id] = hub
+    }
     private var paymentParser: (Any?) -> Void = {_ in }
     private var paymentsParser: (Any?) -> Void = {_ in }
     private var cartonParser: (Any?) -> Void = {_ in }
@@ -114,17 +128,6 @@ class BackendController {
 //        "payments":paymentsParser]
 //        self.loggedInUser = user
 
-//        self.pickupsParser = {
-//            guard let pickupsContainer = $0 as? [[String: Any]] else {
-//                NSLog("Couldn't cast data as dictionary for PICKUPS container.")
-//                return
-//            }
-//
-//            for pickup in pickupsContainer {
-//                self.pickupParser(pickup)
-//            }
-//        }
-//
 //        self.hubParser = {
 //            guard let hubContainer = $0 as? [String: Any] else {
 //                NSLog("Couldn't cast data as dictionary for HUB initialization.")
