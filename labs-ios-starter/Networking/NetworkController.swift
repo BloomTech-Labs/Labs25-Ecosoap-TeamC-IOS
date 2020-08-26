@@ -26,9 +26,19 @@ class BackendController {
     var pickupCartons: [String: PickupCarton] = [:]
     var hospitalityContracts: [String: HospitalityContract] = [:]
 
-    private var parsers: [String: (Any?)->()] = [:]
+    private var parsers: [ResponseModel: (Any?)->()] = [:]
 
-    private var propertyParser: (Any?) -> Void = {_ in }
+    private func propertyParser(data: Any?) {
+        guard let propertyContainer = data as? [String: Any] else {
+            NSLog("Couldn't PROPERTY cast data as dictionary for initialization")
+            return
+        }
+
+        guard let property = Property(dictionary: propertyContainer) else {
+            return
+        }
+        self.properties[property.id] = property
+    }
     private var propertiesParser: (Any?) -> Void = {_ in }
     private var userParser: (Any?) -> Void = {_ in }
     private var pickupParser: (Any?) -> Void = {_ in }
@@ -40,6 +50,15 @@ class BackendController {
 
 
     init() {
+
+//        self.parsers = ["properties":propertyParser,
+//        "property":propertiesParser,
+//        "user":userParser,
+//        "pickup":pickupParser,
+//        "pickups":pickupsParser,
+//        "hub":hubParser,
+//        "payment":paymentParser,
+//        "payments":paymentsParser]
 //        self.loggedInUser = user
 
         self.propertyParser = {
@@ -158,14 +177,7 @@ class BackendController {
 
         }
 
-        self.parsers = ["properties":propertyParser,
-        "property":propertiesParser,
-        "user":userParser,
-        "pickup":pickupParser,
-        "pickups":pickupsParser,
-        "hub":hubParser,
-        "payment":paymentParser,
-        "payments":paymentsParser]
+
 
     }
 
@@ -445,7 +457,7 @@ class BackendController {
 
                 var queryContainer:[String: Any]?
 
-                let payloadString = request.payloadString
+                let payloadString = request.payload.rawValue
 
                 if request.name == "monsterFetch" {
                     guard let queryContainer = dataContainer[request.name] as? [String: Any] else {
@@ -459,7 +471,7 @@ class BackendController {
                 }
 
 
-                guard let parser = self.parsers[payloadString] else {
+                guard let parser = self.parsers[request.payload] else {
                     print("The payload \(payloadString) doesn't possess a parser.")
                     completion(queryContainer?[payloadString], nil)
                     return
