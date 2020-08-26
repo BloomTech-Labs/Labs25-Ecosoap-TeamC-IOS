@@ -210,7 +210,11 @@ class BackendController {
     }
 
     func pickupsByPropertyId(propertyId: String, completion: @escaping (Error?) -> Void) {
-        queryAPI(query: .pickupsByPropertyId, id: propertyId) { (_, error) in
+        guard let request = Queries(name: .pickupsByPropertyId, id: propertyId) else {
+            completion(Errors.RequestInitFail)
+            return
+        }
+        requestAPI(with: request) { (_, error) in
             if let error = error {
                 completion(error)
                 return
