@@ -9,6 +9,11 @@
 import Foundation
 
 class BackendController {
+
+    enum Errors: Error {
+        case RequestInitFail
+    }
+
     private let apiURL: URL = URL(string: "http://35.208.9.187:9096/ios-api-3")!
 
 //    var loggedInUser: User
@@ -265,7 +270,12 @@ class BackendController {
     }
 
     func initialFetch(userId: String, completion: @escaping (Error?) -> Void) {
-        queryAPI(query: .monsterFetch, id: userId) { (data, error) in
+        guard let request = Queries(name: .monsterFetch, id: userId) else {
+            completion(Errors.RequestInitFail)
+            return
+        }
+
+        requestAPI(with: request) { (data, error) in
             if let error = error {
                 completion(error)
                 return
@@ -361,6 +371,7 @@ class BackendController {
 
     func schedulePickup(input: PickupInput, completion: @escaping (Error?) -> Void) {
         guard let request = Mutator(name: .schedulePickup, input: input) else {
+            completion(Errors.RequestInitFail)
             return
         }
         requestAPI(with: request) { (_, error) in
