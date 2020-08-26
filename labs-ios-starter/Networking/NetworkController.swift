@@ -200,7 +200,11 @@ class BackendController {
     }
 
     func hubByPropertyId(propertyId: String, completion: @escaping (Error?) -> Void) {
-        queryAPI(query: .hubByPropertyId, id: propertyId) { (_, error) in
+        guard let request = Queries(name: .hubByPropertyId, id: propertyId) else {
+            completion(Errors.RequestInitFail)
+            return
+        }
+        requestAPI(with: request) { (_, error) in
             if let error = error {
                 completion(error)
                 return
