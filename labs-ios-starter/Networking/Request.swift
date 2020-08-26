@@ -11,4 +11,5 @@ import Foundation
 protocol Request {
     var body: String { get }
     var payloadString: String { get }
+    var name: String { get }
 }
