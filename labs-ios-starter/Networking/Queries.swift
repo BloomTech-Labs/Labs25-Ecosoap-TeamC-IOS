@@ -19,7 +19,7 @@ class Queries: Request {
                                               .propertyById: Queries.propertyById,
                                               .propertiesByUserId: Queries.propertiesByUserId,
                                               .impactStatsByPropertyId: Queries.impactStatsByPropertyId,
-                                              .hubByPropertyId: Queries.impactStatsByPropertyId,
+                                              .hubByPropertyId: Queries.hubByPropertyId,
                                               .pickupsByPropertyId: Queries.pickupsByPropertyId,
                                               .nextPaymentByPropertyId: Queries.nextPaymentByPropertyId,
                                               .paymentsByPropertyId: Queries.paymentsByPropertyId,
@@ -54,31 +54,135 @@ class Queries: Request {
     private static func propertiesByUserId(propertyID: String) -> String {
         return """
         {
-        propertiesByUserId(input: { userId: "\(propertyID)" }) {
-            properties {
-                id,
-                name,
-                rooms,
-                phone,
-                billingAddress,
-                shippingAddress,
-                coordinates,
-                shippingNote,
-                notes,
-                users {
-                    id
+            propertiesByUserId(input: { userId: "\(propertyID)" }) {
+                properties {
+                      id
+                      name
+                      propertyType
+                      rooms
+                      services
+                      collectionType
+                      logo
+                      phone
+                      billingAddress {
+                        address1
+                        address2
+                        address3
+                        city
+                        state
+                        postalCode
+                        country
+                        # formattedAddress
+                      }
+                      shippingAddress {
+                        address1
+                        address2
+                        address3
+                        city
+                        state
+                        postalCode
+                        country
+                        # formattedAddress
+                      }
+                      coordinates {
+                          longitude
+                                  latitude
+                      }
+                      shippingNote
+                      notes
+                      hub {
+                        id
+                        name
+                        address {
+                          address1
+                          address2
+                          address3
+                          city
+                          state
+                          postalCode
+                          country
+                          # formattedAddress
+                        }
+                        email
+                        phone
+                        coordinates {
+                          longitude
+                                  latitude
+                        }
+                        properties {
+                          id
+                        }
+                        workflow
+                        impact {
+                          soapRecycled
+                          linensRecycled
+                          bottlesRecycled
+                          paperRecycled
+                          peopleServed
+                          womenEmployed
+                        }
+                      }
+                      impact {
+                        soapRecycled
+                        linensRecycled
+                        bottlesRecycled
+                        paperRecycled
+                        peopleServed
+                        womenEmployed
+                      }
+                      users {
+                        id
+                      }
+                      pickups {
+                        id
+                        confirmationCode
+                        collectionType
+                        status
+                        readyDate
+                        pickupDate
+                        property {
+                          id
+                        }
+                        cartons {
+                          id
+                          product
+                          percentFull
+                        }
+                        notes
+                      }
+                      contract {
+                        id
+                        startDate
+                        endDate
+                        paymentStartDate
+                        paymentEndDate
+                        properties {
+                          id
+                        }
+                        paymentFrequency
+                        price
+                        discount
+                        billingMethod
+                        automatedBilling
+                        payments {
+                          id
+                          invoice
+                          invoice
+                          amountPaid
+                          amountDue
+                          date
+                          invoicePeriodStartDate
+                          invoicePeriodEndDate
+                          dueDate
+                          paymentMethod
+                          hospitalityContract {
+                            id
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
-                impactStats {
-                  soapRecycled
-                  linensRecycled
-                  bottlesRecycled
-                  paperRecycled
-                  peopleServed
-                  womenEmployed
-                }
-            }
-        }
-        }
         """
     }
 
@@ -114,28 +218,132 @@ class Queries: Request {
         propertyId: "\(propertyID)"
         }) {
         property {
-          id,
-          name,
-          rooms,
-          phone,
-          billingAddress,
-          shippingAddress,
-          coordinates,
-          shippingNote,
-          notes,
-          users {
-            id
-          }
-          impactStats {
-              soapRecycled
-              linensRecycled
-              bottlesRecycled
-              paperRecycled
-              peopleServed
-              womenEmployed
+              id
+              name
+              propertyType
+              rooms
+              services
+              collectionType
+              logo
+              phone
+              billingAddress {
+                address1
+                address2
+                address3
+                city
+                state
+                postalCode
+                country
+                # formattedAddress
+              }
+              shippingAddress {
+                address1
+                address2
+                address3
+                city
+                state
+                postalCode
+                country
+                # formattedAddress
+              }
+              coordinates {
+                  longitude
+                          latitude
+              }
+              shippingNote
+              notes
+              hub {
+                id
+                name
+                address {
+                  address1
+                  address2
+                  address3
+                  city
+                  state
+                  postalCode
+                  country
+                  # formattedAddress
+                }
+                email
+                phone
+                coordinates {
+                  longitude
+                          latitude
+                }
+                properties {
+                  id
+                }
+                workflow
+                impact {
+                  soapRecycled
+                  linensRecycled
+                  bottlesRecycled
+                  paperRecycled
+                  peopleServed
+                  womenEmployed
+                }
+              }
+              impact {
+                soapRecycled
+                linensRecycled
+                bottlesRecycled
+                paperRecycled
+                peopleServed
+                womenEmployed
+              }
+              users {
+                id
+              }
+              pickups {
+                id
+                confirmationCode
+                collectionType
+                status
+                readyDate
+                pickupDate
+                property {
+                  id
+                }
+                cartons {
+                  id
+                  product
+                  percentFull
+                }
+                notes
+              }
+              contract {
+                id
+                startDate
+                endDate
+                paymentStartDate
+                paymentEndDate
+                properties {
+                  id
+                }
+                paymentFrequency
+                price
+                discount
+                billingMethod
+                automatedBilling
+                payments {
+                  id
+                  invoice
+                  invoice
+                  amountPaid
+                  amountDue
+                  date
+                  invoicePeriodStartDate
+                  invoicePeriodEndDate
+                  dueDate
+                  paymentMethod
+                  hospitalityContract {
+                    id
+                  }
+                }
+              }
             }
-        }
-        }
+          }
         }
         """
     }
