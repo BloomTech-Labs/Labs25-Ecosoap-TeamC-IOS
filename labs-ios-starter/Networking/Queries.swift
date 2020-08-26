@@ -11,7 +11,7 @@ class Queries: Request {
 
     var body: String
 
-    var payloadString: String
+    var payload: ResponseModel
 
     var name: String
 
@@ -40,8 +40,14 @@ class Queries: Request {
             NSLog("Couldn't find this query in the collection. Check your implementation.")
             return nil
         }
+
+        guard let payload = Queries.payloads[name] else {
+            NSLog("Couldn't find a matching payload name. Check your implementation.")
+            return nil
+        }
+
         self.body = body(id)
-        self.payloadString = Queries.payloads[name]!.rawValue
+        self.payload = payload
         self.name = name.rawValue
     }
 
