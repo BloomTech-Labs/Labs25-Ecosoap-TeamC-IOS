@@ -14,6 +14,8 @@ func newError(message string: String) -> NSError {
 
 class BackendController {
 
+    private(set) var nextPayment: NextPayment?
+
     enum Errors: Error {
         case ObjectInitFail
         case RequestInitFail
@@ -226,11 +228,20 @@ class BackendController {
             completion(Errors.RequestInitFail)
             return
         }
-        requestAPI(with: request) { (_, error) in
+        requestAPI(with: request) { (data, error) in
             if let error = error {
                 completion(error)
                 return
             }
+
+            guard let data = data as? [String: Any] else {
+                NSLog("No data returned from next payment request. There may be no payment pending.")
+                completion(nil)
+                return
+            }
+
+            self.nextPayment = NextPayment(dictionary: data)
+
             completion(nil)
         }
     }
@@ -383,7 +394,7 @@ class BackendController {
         }
     }
 
-    // MARK: Mutations
+    // MARK: - Mutations
 
     func schedulePickup(input: PickupInput, completion: @escaping (Error?) -> Void) {
         guard let request = Mutator(name: .schedulePickup, input: input) else {
@@ -498,6 +509,14 @@ class BackendController {
                         return
                     }
                     completion(queryContainer[payloadString], nil)
+                    return
+                } else if request.name == "nextPaymentByPropertyId"{
+                    guard let queryContainer = dataContainer["nextPaymentByPropertyId"] as? [String: Any] else {
+                        completion(nil, NSError(domain: "Query container couldn't be unwrapped", code: 0, userInfo: nil))
+                        return
+                    }
+
+                    completion(queryContainer, nil)
                     return
                 } else {
                     queryContainer = dataContainer[request.name] as? [String: Any]
