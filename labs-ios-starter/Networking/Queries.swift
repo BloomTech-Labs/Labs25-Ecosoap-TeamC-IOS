@@ -445,21 +445,12 @@ class Queries: Request {
           nextPaymentByPropertyId(input: {
             propertyId: "\(propertyID)"
           }) {
-            payment {
-              id
-              invoiceCode
-              invoice
-              amountPaid
-              amountDue
-              date
-              invoicePeriodStartDate
-              invoicePeriodEndDate
-              dueDate
-              paymentMethod
-              hospitalityContract {
-                id
-              }
-            }
+            invoiceCode
+            invoice
+            amountDue
+            invoicePeriodStartDate
+            invoicePeriodEndDate
+            dueDate
           }
         }
         """
